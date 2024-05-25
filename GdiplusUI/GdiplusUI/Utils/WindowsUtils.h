@@ -12,10 +12,20 @@ namespace WindowLayer {
 
 namespace Defines {
 
+
+// - - GetOsVersion();
+
+typedef struct {
+  ULONG NtMajorVersion;
+  ULONG NtMinorVersion;
+  ULONG NtBuildNumber;
+} OsVersion;
+
+// - - SetBlurEffect();
+
 typedef enum { WCA_ACCENT_POLICY = 19 } WINDOWCOMPOSITIONATTRIB;
 
 typedef enum { None = -2, Aero = 1, Acrylic = 2, Mica = 3 } BlurTypes;
-
 
 /// <summary>
 /// Todo. 添加 GRADIENT 支持，现在项目用不着，以后提issue再说 (2024.05.22)
@@ -34,13 +44,6 @@ typedef struct {
   DWORD        AnimationId;
 } ACCENT_POLICY;
 
-
-typedef struct {
-  ULONG NtMajorVersion;
-  ULONG NtMinorVersion;
-  ULONG NtBuildNumber;
-} OsVersion;
-
 typedef struct {
   WINDOWCOMPOSITIONATTRIB Attrib;
   void*                   pvData;
@@ -58,8 +61,12 @@ typedef BOOL(__stdcall SetWindowCompositionAttribute)(
 
 using namespace Defines;
 
+static inline void
+SetWindowCompositionAttributeFn(SetWindowCompositionAttribute*&, HMODULE&);
+
 OsVersion GetOsVersion();
-bool      EnableBlurEffect(HWND targetWindow, BlurTypes type = None);
+bool      SetDarkMode(HWND targetWindow, bool toggle);
+bool      SetBlurEffect(HWND targetWindow, BlurTypes type = None);
 
 
 } // namespace WindowLayer

@@ -118,7 +118,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -155,6 +155,7 @@
     <ClCompile Include="GdiplusUI\RenderManager.cpp" />
     <ClCompile Include="GdiplusUI\Interface.cpp" />
     <ClCompile Include="GdiplusUI\Utils\GdiplusUtils.cpp" />
+    <ClCompile Include="GdiplusUI\Utils\RegeditUtils.cpp" />
     <ClCompile Include="GdiplusUI\Utils\WindowsUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -166,6 +167,7 @@
     <ClInclude Include="GdiplusUI\LogicManager.h" />
     <ClInclude Include="GdiplusUI\RenderManager.h" />
     <ClInclude Include="GdiplusUI\Utils\GdiplusUtils.h" />
+    <ClInclude Include="GdiplusUI\Utils\RegeditUtils.h" />
     <ClInclude Include="GdiplusUI\Utils\WindowsUtils.h" />
   </ItemGroup>
   <ItemGroup>

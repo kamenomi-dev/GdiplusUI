@@ -2,7 +2,33 @@
 
 #include <VersionHelpers.h>
 
+
 using GdiplusUI::Utils::Windows::WindowLayer::OsVersion;
+using GdiplusUI::Utils::Windows::WindowLayer::SetWindowCompositionAttribute;
+
+
+void GdiplusUI::Utils::Windows::WindowLayer::SetWindowCompositionAttributeFn(
+    SetWindowCompositionAttribute*& fnSet,
+    HMODULE&                        hUser32
+) {
+
+  hUser32 = LoadLibraryA("User32.dll");
+  if (hUser32 == NULL) {
+    return;
+  }
+
+  auto fnSetAttribute = (SetWindowCompositionAttribute*)
+      GetProcAddress(hUser32, "SetWindowCompositionAttribute");
+
+  if (fnSetAttribute == NULL) {
+    FreeLibrary(hUser32);
+    hUser32 = NULL;
+    return;
+  }
+
+  fnSet = fnSetAttribute;
+}
+
 
 OsVersion GdiplusUI::Utils::Windows::WindowLayer::GetOsVersion() {
   // it uses KUSER_SHARED_DATA struct
@@ -22,17 +48,30 @@ OsVersion GdiplusUI::Utils::Windows::WindowLayer::GetOsVersion() {
   return retVersion;
 }
 
+
+bool GdiplusUI::Utils::Windows::WindowLayer::SetDarkMode(HWND targetWindow, bool toggle) {
+  BOOL  bValue      = toggle;                         
+  
+  return DwmSetWindowAttribute(
+      targetWindow,
+      DWMWA_USE_IMMERSIVE_DARK_MODE,
+      &bValue,
+      sizeof(bValue)
+  ) == S_OK;
+}
+
+
 /// <summary>
 /// Todo, 添加对 Mica 云母效果支持
 /// </summary>
-bool GdiplusUI::Utils::Windows::WindowLayer::EnableBlurEffect(
+bool GdiplusUI::Utils::Windows::WindowLayer::SetBlurEffect(
     HWND      targetWindow,
     BlurTypes type
 ) {
 
   const auto IsWindows11 = GetOsVersion().NtBuildNumber >= 22000;
 
-#if defined(_DEBUG) && not defined(_GDIPLUSUI_UTILS__DISABLE_ALL_WARNINGS)
+#if not IsWindows11 && not defined(_GDIPLUSUI_UTILS__DISABLE_ALL_WARNINGS)
 
   ///
   /// For developer.
@@ -45,39 +84,41 @@ bool GdiplusUI::Utils::Windows::WindowLayer::EnableBlurEffect(
   /// or higher.
   ///
 
-  if (type >= BlurTypes::Acrylic) {
+  assert(
+      true
+      && "Error! Acrylic effect and Mica effect haven't support lower than "
+         "the Windows 11 version."
+  );
 
-    assert(
-        not IsWindows11
-        && "Error! Acrylic effect and Mica effect haven't support lower than "
-           "the Windows 11 version."
-    );
+#endif
+
+
+  SetWindowCompositionAttribute* fn      = nullptr;
+  HMODULE                        hUser32 = NULL;
+  SetWindowCompositionAttributeFn(fn, hUser32);
+
+
+  if (fn == NULL) {
+
+    if (type != Aero) return false;
+
+    if (IsWindows11) return false;
+
+    DWM_BLURBEHIND blurBehind{
+        DWM_BB_ENABLE | DWM_BB_BLURREGION, // dwFlags
+        true,                              // fEnable
+        NULL,                              // hRgnBlur
+        false                              // fTransitionOnMaximized
+    };
+
+    return DwmEnableBlurBehindWindow(targetWindow, &blurBehind) == S_OK;
   }
 
-#endif // defined(_DEBUG) && not defined(_GDIPLUSUI_UTILS__DISABLE_ALL_WARNINGS)
 
-#if not defined(_GDIPLUSUI_UTILS__NO_CHANGE_ANY)
-
-  if (not IsWindows11) {
-    if (type >= BlurTypes::Acrylic) {
-      type = Aero;
-    }
-  }
-
-#endif // defined(_GDIPLUSUI_UTILS__NO_CHANGE_ANY)
-
-  auto hUser32 = LoadLibraryA("User32.dll");
   if (hUser32 == NULL) {
     return false;
   }
 
-  auto fnSetAttribute = (SetWindowCompositionAttribute*)
-      GetProcAddress(hUser32, "SetWindowCompositionAttribute");
-
-  if (fnSetAttribute == nullptr) {
-    FreeLibrary(hUser32);
-    return false;
-  }
 
   Defines::ACCENT_POLICY accent{};
   accent.AccentState =
@@ -86,11 +127,18 @@ bool GdiplusUI::Utils::Windows::WindowLayer::EnableBlurEffect(
   accent.AnimationId   = 0;
   accent.GradientColor = 0;
 
+
   Defines::WINDOWCOMPOSITIONATTRIBDATA attribData{};
   attribData.Attrib = WCA_ACCENT_POLICY;
   attribData.pvData = &accent;
   attribData.cbData = sizeof(accent);
-  auto ret          = fnSetAttribute(targetWindow, &attribData);
+
+
+  bool ret = false;
+  if (fn != NULL) {
+    ret = fn(targetWindow, &attribData);
+  };
+
 
   FreeLibrary(hUser32);
   return ret;

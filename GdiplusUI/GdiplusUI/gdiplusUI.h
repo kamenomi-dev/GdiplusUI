@@ -3,10 +3,12 @@
 
 #include <assert.h>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 #include <Windows.h>
 #include <Windowsx.h>
+#include <dwmapi.h>
 #include <gdiplus.h>
 
 using namespace Gdiplus;
@@ -27,6 +29,7 @@ using std::wstring;
 #include "./Interface.h"
 
 #include "./Utils/GdiplusUtils.h"
+#include "./Utils/RegeditUtils.h"
 #include "./Utils/WindowsUtils.h"
 
 #include "./Components/Control.h"

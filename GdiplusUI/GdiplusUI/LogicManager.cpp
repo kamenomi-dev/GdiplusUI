@@ -8,16 +8,45 @@ GdiplusUI::LogicManager::LogicManager(RenderManager* renderManager) {
 GdiplusUI::LogicManager::~LogicManager() {}
 
 
+void GdiplusUI::LogicManager::UpdateThemeStatus() {
+  GdiplusUI::Utils::Regedit::Regedit reg(
+      L"HKEY_CURRENT_"
+      L"USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personali"
+      L"ze"
+  );
+  GdiplusUI::Utils::Windows::WindowLayer::SetDarkMode(
+      m_hMessageWnd,
+      reg.GetItem<DWORD>(L"AppsUseLightTheme") == 0
+  );
+}
+
 LRESULT GdiplusUI::LogicManager::MessageHandler(
     HWND   hWnd,
     UINT   uMsg,
     WPARAM wParam,
     LPARAM lParam
 ) {
-  static SwapChain* swapChain; // Need to check nullpointer.
+  static unsigned int themeColor = 0; // AARRGGBB
+  static SwapChain*   swapChain; // Need to check nullpointer.
+
+  if (uMsg == WM_DWMCOLORIZATIONCOLORCHANGED) {
+
+    if (uMsg == themeColor) {
+      return 0;
+    }
+
+    themeColor = wParam;
+    UpdateThemeStatus();
+  }
 
   if (uMsg == WM_CREATE) {
-    GdiplusUI::Utils::Windows::WindowLayer::EnableBlurEffect(hWnd, Utils::Windows::WindowLayer::Aero);
+    UpdateThemeStatus();
+
+    GdiplusUI::Utils::Windows::WindowLayer::SetBlurEffect(
+        hWnd,
+        Utils::Windows::WindowLayer::Aero
+    );
+
     swapChain = m_renderManager->GetSwapContext();
   }
 
@@ -40,7 +69,7 @@ LRESULT GdiplusUI::LogicManager::MessageHandler(
 
     Graphics presentGrap(swapChain->GetLayoutDC());
     auto     ret = presentGrap.GetLastStatus();
-    presentGrap.Clear(Color(255 * 0.1, 255, 255, 255)); // Todo.
+    presentGrap.Clear(Color(themeColor)); // Todo.
 
     PostMessageEventToAllEx(
         WM_PAINT,

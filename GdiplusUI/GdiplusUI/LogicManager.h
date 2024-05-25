@@ -19,7 +19,7 @@ class LogicManager : INonCopy {
   LogicManager(RenderManager* renderManager);
   ~LogicManager();
 
-
+  void UpdateThemeStatus();
   LRESULT MessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
   void PostMessageEventToAll(UINT uMsg, WPARAM wParam, LPARAM lParam);
