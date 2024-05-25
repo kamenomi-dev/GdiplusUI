@@ -64,6 +64,9 @@ LRESULT GdiplusUI::LogicManager::MessageHandler(
 
 
   // Handle WM_PAINT
+  ///
+  /// Todo. äÖÈ¾Âß¼­²»ÕýÈ·¡£
+  /// 
   if (uMsg == WM_PAINT) {
     assert(swapChain);
 

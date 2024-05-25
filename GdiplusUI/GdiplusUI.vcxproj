@@ -157,6 +157,7 @@
     <ClCompile Include="GdiplusUI\Utils\GdiplusUtils.cpp" />
     <ClCompile Include="GdiplusUI\Utils\RegeditUtils.cpp" />
     <ClCompile Include="GdiplusUI\Utils\WindowsUtils.cpp" />
+    <ClCompile Include="ReadME.md" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GdiplusUI\gdiplusUI.h" />

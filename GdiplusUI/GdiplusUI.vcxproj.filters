@@ -48,6 +48,9 @@
     <ClCompile Include="GdiplusUI\Utils\RegeditUtils.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="ReadME.md">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GdiplusUI\gdiplusUI.h">
