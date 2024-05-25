@@ -13,9 +13,11 @@
 
 ---
 
-[!INFO] 有 **任何** 编译或运行不正常的原因可以先尝试自己修复，再提交 PullRequest 或 Issues，因为有许多问题并不能在一个系统上复现。
+> [!NOTE]
+> 有 **任何** 编译或运行不正常的原因可以先尝试自己修复，再提交 PullRequest 或 Issues，因为有许多问题并不能在一个系统上复现。
 
-[!WARNING] **GdiplusUI 库** 将所有类都定义了 **缺省构造函数** ，但是不建议这样构造，因为他会导致非预期错误。
+> [!WARNING]
+> **GdiplusUI 库** 将所有类都定义了 **缺省构造函数** ，但是不建议这样构造，因为他会导致非预期错误。
 
 ## 库运行方式
 
@@ -91,7 +93,8 @@ if (uMsg == WM_PAINT) {
 
 ## WM_ 键鼠消息
 
-[!INFO] 这里为未来开发的方向，在实际代码中可能没有具体实现。
+> [!INFO]
+> 这里为未来开发的方向，在实际代码中可能没有具体实现。
 
 ### WM_ 鼠标消息
 
@@ -103,7 +106,8 @@ if (uMsg == WM_PAINT) {
 在触发消息后，首先会调用 CFComp指向的组件告诉已经失去焦点，再经过 逻辑控制器 并调用 渲染控制器的 FindControl 函数，将结果赋值给 CFComp。
 接着调用现行 CFComp 指向的组件告诉已经获得焦点。
 
-[!WARNING] WM_SET/KILLFOCUS 消息和所传递焦点消息并不一样，这为了维护Windows的消息约定，尽管传递焦点的消息值不来自于RegisterWindowMessage（没有人这么干吧？）
+> [!WARNING]
+> WM_SET/KILLFOCUS 消息和所传递焦点消息并不一样，这为了维护Windows的消息约定，尽管传递焦点的消息值不来自于RegisterWindowMessage（没有人这么干吧？）
 
 ### WM_ 键盘消息
 
