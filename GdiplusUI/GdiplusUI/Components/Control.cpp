@@ -64,24 +64,27 @@ void GdiplusUI::Components::Control::SetVisible(bool status, bool force) {
   m_bVisible = status;
 }
 
-LRESULT GdiplusUI::Components::Control::__MessageHandler(
-    UINT   uMsg,
-    WPARAM wParam,
-    LPARAM lParam
-) {
+LRESULT GdiplusUI::Components::Control::DefaultMessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
   if (uMsg == WM_SIZE) {
     SetRect({0, 0, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)});
   }
 
-
   if (uMsg == WM_PAINT) {
-    return __PaintHandler(*RenderManager::GetGraphics(lParam));
+    return __PaintHandler(*RenderManager::GetGraphics(lParam), (void*)lParam);
   }
 
   return 0;
 }
 
-bool GdiplusUI::Components::Control::__PaintHandler(Graphics& graphics) {
+LRESULT GdiplusUI::Components::Control::__MessageHandler(
+    UINT   uMsg,
+    WPARAM wParam,
+    LPARAM lParam
+) {
+  return DefaultMessageHandler(uMsg, wParam, lParam);
+}
+
+bool GdiplusUI::Components::Control::__PaintHandler(Graphics& graphics, void* reservedData) {
   return false;
 }

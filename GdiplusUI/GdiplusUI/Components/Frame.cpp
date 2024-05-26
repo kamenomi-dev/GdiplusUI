@@ -7,10 +7,14 @@ GdiplusUI::Components::Frame::Frame() : Control() {}
 GdiplusUI::Components::Frame::Frame(Rect rcControl) : Control(rcControl) {}
 
 
+bool GdiplusUI::Components::Frame::__PaintHandler(const Graphics& graphics, void* reservedData) { return true; }
+
+LRESULT GdiplusUI::Components::Frame::__MessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam) { return 0; }
+
 void GdiplusUI::Components::Frame::SetParent(Control* parent) {
   if (m_parent != nullptr) {
     auto& childrenList = m_parent->m_children;
-    auto  target = std::find(childrenList->begin(), childrenList->end(), this);
+    auto  target       = std::find(childrenList->begin(), childrenList->end(), this);
 
     if (target != childrenList->end()) {
       childrenList->erase(target);
@@ -33,6 +37,4 @@ void GdiplusUI::Components::Frame::SetChild(Control* child) {
   child->SetParent(this);
 }
 
-vector<Control*>& GdiplusUI::Components::Frame::GetChildren() {
-  return *m_children;
-}
+vector<Control*>& GdiplusUI::Components::Frame::GetChildren() { return *m_children; }

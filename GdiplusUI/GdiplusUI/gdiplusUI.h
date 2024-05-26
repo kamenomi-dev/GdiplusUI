@@ -33,9 +33,12 @@ using std::wstring;
 #include "./Utils/WindowsUtils.h"
 
 #include "./Components/Control.h"
-#include "./Components/Frame.h"
-#include "./Components/Screen.h"
+
+#include "./ResourceManager.h"
 
 #include "./RenderManager.h"
 
 #include "./LogicManager.h"
+
+#include "./Components/Frame.h"
+#include "./Components/Screen.h"

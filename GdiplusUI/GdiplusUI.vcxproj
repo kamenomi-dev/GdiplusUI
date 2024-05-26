@@ -154,10 +154,13 @@
     <ClCompile Include="GdiplusUI\LogicManager.cpp" />
     <ClCompile Include="GdiplusUI\RenderManager.cpp" />
     <ClCompile Include="GdiplusUI\Interface.cpp" />
+    <ClCompile Include="GdiplusUI\ResourceManager.cpp" />
     <ClCompile Include="GdiplusUI\Utils\GdiplusUtils.cpp" />
     <ClCompile Include="GdiplusUI\Utils\RegeditUtils.cpp" />
     <ClCompile Include="GdiplusUI\Utils\WindowsUtils.cpp" />
-    <ClCompile Include="ReadME.md" />
+    <ClCompile Include="ReadME.md">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GdiplusUI\gdiplusUI.h" />
@@ -167,6 +170,7 @@
     <ClInclude Include="GdiplusUI\Interface.h" />
     <ClInclude Include="GdiplusUI\LogicManager.h" />
     <ClInclude Include="GdiplusUI\RenderManager.h" />
+    <ClInclude Include="GdiplusUI\ResourceManager.h" />
     <ClInclude Include="GdiplusUI\Utils\GdiplusUtils.h" />
     <ClInclude Include="GdiplusUI\Utils\RegeditUtils.h" />
     <ClInclude Include="GdiplusUI\Utils\WindowsUtils.h" />

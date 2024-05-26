@@ -5,11 +5,25 @@
 
 
 using namespace GdiplusUI::Components;
-using GdiplusUI::Utils::Gdiplus::SwapChain;
+using GdiplusUI::Utils::GdiplusExt::SwapChain;
 
 namespace GdiplusUI {
 
 // #define __FindControlCallback [](Control*)->bool;
+
+namespace Defines {
+
+typedef enum { RenderFlagNormalRender, RenderFlagCaptionRender } RenderFlag;
+
+typedef struct {
+  RenderFlag flag;
+  Graphics*  graphics;
+  void*      reservedData;
+} RenderInformationBlock, RIB;
+}; // namespace Defines
+
+
+using namespace Defines;
 
 class GpUI_API RenderManager : public INonCopy {
   public:
@@ -18,8 +32,6 @@ class GpUI_API RenderManager : public INonCopy {
   ~RenderManager();
 
   static Graphics* GetGraphics(LPARAM data);
-
-  void Init(); // Call it when WM_CREATE
 
   Control*   GetControlRoot() const;
   SwapChain* GetSwapContext() const;

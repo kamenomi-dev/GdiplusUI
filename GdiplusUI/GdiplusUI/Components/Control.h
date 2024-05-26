@@ -16,7 +16,7 @@ class GpUI_API Control : public INonCopy {
   public:
   Control();
   Control(Rect rcControl);
-  ~Control();
+  virtual ~Control();
 
   wstring GetControlID() const;
 
@@ -30,8 +30,10 @@ class GpUI_API Control : public INonCopy {
   bool IsVisible() const;
   void SetVisible(bool status, bool force = false);
 
-  LRESULT      __MessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam);
-  virtual bool __PaintHandler(Graphics&);
+  LRESULT DefaultMessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+  virtual LRESULT __MessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam);
+  virtual bool    __PaintHandler(Graphics&, void* reservedData = nullptr);
 
 
   /// <summary>

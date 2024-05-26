@@ -10,7 +10,7 @@ GdiplusUI::RenderManager::RenderManager() {
 GdiplusUI::RenderManager::RenderManager(Control* screen, HWND hWnd) {
   m_renderWindow = hWnd;
   m_controlRoot  = screen;
-  m_swapChain    = new Utils::Gdiplus::SwapChain;
+  m_swapChain    = new Utils::GdiplusExt::SwapChain;
 
   m_swapChain->Bind(hWnd);
 }
@@ -25,7 +25,7 @@ GdiplusUI::RenderManager::~RenderManager() {
 /// </summary>
 Graphics* GdiplusUI::RenderManager::GetGraphics(LPARAM data) {
   // 抽象一下，方便组件开发
-  return (Graphics*)(void*)data;
+  return ((RIB*)data)->graphics;
 }
 
 

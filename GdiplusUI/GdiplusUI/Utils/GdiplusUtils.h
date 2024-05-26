@@ -5,7 +5,9 @@
 
 namespace GdiplusUI {
 namespace Utils {
-namespace Gdiplus {
+namespace GdiplusExt {
+
+
 class SwapChain : GdiplusUI::INonCopy {
   public:
   SwapChain();
@@ -27,7 +29,12 @@ class SwapChain : GdiplusUI::INonCopy {
   HBITMAP m_hVirtualBitmap;
   HBITMAP m_hVirtualBitmapOld;
 };
-} // namespace Gdiplus
+
+
+void CreateBezierRoundedRect(GraphicsPath& path, RectF rect, float radius);
+void CreateBezierRoundedRect(GraphicsPath& path, Rect rect, float radius);
+
+} // namespace GdiplusExt
 } // namespace Utils
 } // namespace GdiplusUI
 

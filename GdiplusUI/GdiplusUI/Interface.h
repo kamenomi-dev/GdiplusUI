@@ -10,5 +10,6 @@ class GpUI_API INonCopy abstract {
   private:
   INonCopy(const INonCopy&)            = delete;
   INonCopy& operator=(const INonCopy&) = delete;
+
 };
 } // namespace GdiplusUI

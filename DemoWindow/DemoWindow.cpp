@@ -82,6 +82,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
   static GdiplusUI::RenderManager renderManager(&win, hWnd);
   static GdiplusUI::LogicManager logicManager(&renderManager);
 
+  if (message == WM_CREATE) {
+    win.BindWindow(hWnd);
+  }
+
   if (message == WM_DESTROY) {
     PostQuitMessage(0);
     return 0;

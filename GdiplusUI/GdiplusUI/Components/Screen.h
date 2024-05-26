@@ -5,18 +5,22 @@
 #define _GDIPLUSUI_SCREEN_H_
 namespace GdiplusUI {
 namespace Components {
-class GpUI_API Screen : public Frame {
+class GpUI_API Screen : virtual public Frame {
   public:
   Screen();
   Screen(Rect rcControl);
 
   void BindWindow(HWND hWnd);
 
+  inline void SetFullscreenStatus(bool);
+  inline bool GetFullscreenStatus() const;
+
   LRESULT __MessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam);
-  bool    __PaintHandler(Graphics& graphics);
+  bool    __PaintHandler(Graphics& graphics, void* reservedData = nullptr);
 
   private:
   HWND m_hTargetWnd;
+  bool m_bFullscreen;
 };
 } // namespace Components
 } // namespace GdiplusUI
