@@ -23,10 +23,10 @@ class LogicManager : INonCopy {
   static Size GetControlButtonSize();
 
   void UpdateThemeStatus();
-  void WindowCaptionRender(UINT uMsg, LRESULT result);
+  void CaptionRenderProcess(UINT uMsg, LRESULT result = -1);
 
   LRESULT MessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-  bool    WindowCaptionHittest(HWND hWnd, WPARAM wParam, LPARAM lParam, LRESULT& lResult);
+  bool    CaptionMessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult);
   bool    ExtendFrameMessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult);
 
   void PostMessageEventToAll(UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -39,8 +39,10 @@ class LogicManager : INonCopy {
   void _PostMessageEventToTarget(Control* target, UINT uMsg, WPARAM wParam, LPARAM lParam, bool enableBubble);
 
   private:
+  POINT          m_posWindow;
+  SIZE           m_sizeWindow;
   HWND           m_hMessageWnd;
-  RenderManager* m_renderManager;;
+  RenderManager* m_renderManager;
 };
 } // namespace GdiplusUI
 

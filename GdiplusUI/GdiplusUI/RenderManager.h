@@ -13,7 +13,16 @@ namespace GdiplusUI {
 
 namespace Defines {
 
-typedef enum { RenderFlagNormalRender, RenderFlagCaptionRender } RenderFlag;
+enum class RenderFlag : unsigned char { NormalRender, CaptionRender };
+
+enum class ButtonStatus : unsigned char {
+  Invalid = 255U,
+  Reset   = 255U,
+  Normal  = 255U,
+
+  Hover = 0,
+  Down
+};
 
 typedef struct {
   RenderFlag flag;
@@ -28,7 +37,7 @@ using namespace Defines;
 class GpUI_API RenderManager : public INonCopy {
   public:
   RenderManager();
-  RenderManager(Control* screen, HWND hWnd); // control root.
+  RenderManager(Control* screen, HWND hWnd, ResourceManager* resourceManager); // control root.
   ~RenderManager();
 
   static Graphics* GetGraphics(LPARAM data);
@@ -46,7 +55,8 @@ class GpUI_API RenderManager : public INonCopy {
   HWND     m_renderWindow;
   Control* m_controlRoot;
 
-  SwapChain* m_swapChain;
+  SwapChain*       m_swapChain;
+  ResourceManager* m_resourceManager;
 };
 } // namespace GdiplusUI
 

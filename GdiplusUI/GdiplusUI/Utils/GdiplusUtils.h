@@ -31,6 +31,14 @@ class SwapChain : GdiplusUI::INonCopy {
 };
 
 
+Color HexToColor(string hex);
+Color HexToColor(wstring hex);
+
+
+Rect RectFToRect(RectF);
+RectF RectToRectF(Rect);
+
+
 void CreateBezierRoundedRect(GraphicsPath& path, RectF rect, float radius);
 void CreateBezierRoundedRect(GraphicsPath& path, Rect rect, float radius);
 

@@ -1,7 +1,11 @@
 
 // #pragma warning(disable : 4251)
 
+#include "../resource.h"
+
 #include <assert.h>
+#include <filesystem>
+#include <memory>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -12,8 +16,10 @@
 #include <gdiplus.h>
 
 using namespace Gdiplus;
+using std::string;
 using std::vector;
 using std::wstring;
+namespace filesystem = std::filesystem;
 
 #ifdef GDIPLUSUI_EXPORTS
 #define GpUI_API // _declspec(dllexport)
@@ -22,13 +28,12 @@ using std::wstring;
 #endif
 
 
-#define _GDIPLUSUI_UTILS__DISABLE_ALL_WARNINGS
-#define _GDIPLUSUI_UTILS__NO_CHANGE_ANY
-
+#include "./Includes/PugiXML/pugixml.hpp"
 
 #include "./Interface.h"
 
 #include "./Utils/GdiplusUtils.h"
+// #include "./Utils/ProgramUtils.h"
 #include "./Utils/RegeditUtils.h"
 #include "./Utils/WindowsUtils.h"
 

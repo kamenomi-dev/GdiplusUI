@@ -33,12 +33,12 @@ BinPackArguments: false
 BinPackParameters: false
 BreakBeforeBraces: Custom
 BreakBeforeBinaryOperators: NonAssignment
-ColumnLimit: 120
+ColumnLimit: 150
 CommentPragmas: '^ IWYU pragma:'
 ConstructorInitializerIndentWidth: 0
 IndentWidth: 2
 Language: Cpp
-MaxEmptyLinesToKeep: 2
+MaxEmptyLinesToKeep: 5
 PackConstructorInitializers: CurrentLine
 PointerAlignment: Left
 TabWidth: 2

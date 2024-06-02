@@ -3,14 +3,16 @@
 GdiplusUI::RenderManager::RenderManager() {
   m_renderWindow = NULL;
   m_controlRoot  = nullptr;
+  m_resourceManager = nullptr;
 
   m_swapChain = new SwapChain;
 }
 
-GdiplusUI::RenderManager::RenderManager(Control* screen, HWND hWnd) {
+GdiplusUI::RenderManager::RenderManager(Control* screen, HWND hWnd, ResourceManager* resourceManager) {
   m_renderWindow = hWnd;
   m_controlRoot  = screen;
   m_swapChain    = new Utils::GdiplusExt::SwapChain;
+  m_resourceManager = resourceManager;
 
   m_swapChain->Bind(hWnd);
 }

@@ -48,10 +48,10 @@
     <ClCompile Include="GdiplusUI\Utils\RegeditUtils.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ReadME.md">
+    <ClCompile Include="GdiplusUI\ResourceManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="GdiplusUI\ResourceManager.cpp">
+    <ClCompile Include="GdiplusUI\Includes\PugiXML\pugixml.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -89,10 +89,29 @@
     <ClInclude Include="GdiplusUI\ResourceManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="GdiplusUI\Includes\RapidXML\rapidxml.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GdiplusUI\Includes\RapidXML\rapidxml_utils.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GdiplusUI\Includes\RapidXML\rapidxml_print.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GdiplusUI\Includes\RapidXML\rapidxml_iterators.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GdiplusUI\Includes\PugiXML\pugixml.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GdiplusUI\Includes\PugiXML\pugiconfig.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
     <None Include=".clang-tidy" />
     <None Include="ClassDiagram.cd" />
+    <None Include="GdiplusUI\Resource\Default.xml.theme" />
   </ItemGroup>
 </Project>

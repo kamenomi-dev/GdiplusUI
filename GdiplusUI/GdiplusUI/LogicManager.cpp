@@ -1,6 +1,11 @@
 #include "./gdiplusUI.h"
 
+using namespace GdiplusUI::Utils::Regedit;
+using namespace GdiplusUI::Utils::Windows;
+
 GdiplusUI::LogicManager::LogicManager(RenderManager* renderManager) {
+  m_posWindow     = {0, 0};
+  m_sizeWindow    = {0, 0};
   m_hMessageWnd   = renderManager->GetRenderWindow();
   m_renderManager = renderManager;
 
@@ -10,34 +15,47 @@ GdiplusUI::LogicManager::LogicManager(RenderManager* renderManager) {
 GdiplusUI::LogicManager::~LogicManager() {}
 
 // Todo
-Size GdiplusUI::LogicManager::GetControlButtonSize() { return Size(60, 44); }
+Size GdiplusUI::LogicManager::GetControlButtonSize() { return Size(44, 30); }
 
 void GdiplusUI::LogicManager::UpdateThemeStatus() {
-  GdiplusUI::Utils::Regedit::Regedit reg(L"HKEY_CURRENT_"
-                                         L"USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personali"
-                                         L"ze");
-  GdiplusUI::Utils::Windows::WindowLayer::SetDarkMode(m_hMessageWnd, reg.GetItem<DWORD>(L"AppsUseLightTheme") == 0);
+  constexpr auto registryPath = L"HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
+  constexpr auto registryKey  = L"AppsUseLightTheme";
+
+  Regedit reg(registryPath);
+  auto    isDarkMode = reg.GetItem<DWORD>(registryKey) == 0;
+
+  WindowLayer::SetDarkMode(m_hMessageWnd, isDarkMode);
 }
 
-void GdiplusUI::LogicManager::WindowCaptionRender(UINT uMsg, LRESULT result) {
 
+void GdiplusUI::LogicManager::CaptionRenderProcess(UINT uMsg, LRESULT result) {
+
+  ButtonStatus buttonStatus = ButtonStatus::Normal;
   if (uMsg == WM_NCHITTEST) {
-
-    auto     swapChain = m_renderManager->GetSwapContext();
-    Graphics presentGrap(swapChain->GetLayoutDC());
-    presentGrap.SetSmoothingMode(SmoothingModeHighQuality);
-
-    RIB infoBlock{};
-    infoBlock.flag = RenderFlagCaptionRender;
-    infoBlock.graphics = &presentGrap;
-    infoBlock.reservedData = &result;
-
-    m_renderManager->GetControlRoot()->DefaultMessageHandler(WM_PAINT, result, (LPARAM) &infoBlock);
-
-    swapChain->Present();
-
+    buttonStatus = ButtonStatus::Hover;
+  } else if (uMsg == WM_NCLBUTTONDOWN) {
+    buttonStatus = ButtonStatus::Down;
   }
 
+
+  auto     swapChain = m_renderManager->GetSwapContext();
+  Graphics graphics(swapChain->GetLayoutDC());
+
+  int statusData = MAKELONG(result, buttonStatus);
+
+  RIB infoBlock{};
+  infoBlock.flag         = RenderFlag::CaptionRender;
+  infoBlock.graphics     = &graphics;
+  infoBlock.reservedData = &statusData;
+
+
+  const auto lastSmoothMode = graphics.GetSmoothingMode();
+  graphics.SetSmoothingMode(SmoothingModeDefault);
+
+  m_renderManager->GetControlRoot()->DefaultMessageHandler(WM_PAINT, result, reinterpret_cast<LPARAM>(&infoBlock));
+
+  graphics.SetSmoothingMode(lastSmoothMode);
+  swapChain->Present();
 }
 
 
@@ -76,9 +94,17 @@ LRESULT GdiplusUI::LogicManager::MessageHandler(HWND hWnd, UINT uMsg, WPARAM wPa
   }
 
 
+  if (uMsg == WM_MOVE) {
+    m_posWindow.x = GET_X_LPARAM(lParam);
+    m_posWindow.y = GET_Y_LPARAM(lParam);
+  }
+
+
   if (uMsg == WM_SIZE) {
     assert(swapChain);
     swapChain->Resize(lParam);
+    m_sizeWindow.cx = GET_X_LPARAM(lParam);
+    m_sizeWindow.cy = GET_Y_LPARAM(lParam);
     {
 
       //  Todo  Correctly event handler!
@@ -97,8 +123,8 @@ LRESULT GdiplusUI::LogicManager::MessageHandler(HWND hWnd, UINT uMsg, WPARAM wPa
     presentGrap.SetSmoothingMode(SmoothingModeHighQuality);
 
     RIB infoBlock{};
-    infoBlock.flag = RenderFlagNormalRender;
-    infoBlock.graphics = &presentGrap;
+    infoBlock.flag         = RenderFlag::NormalRender;
+    infoBlock.graphics     = &presentGrap;
     infoBlock.reservedData = nullptr;
 
     PostMessageEventToAllEx(WM_PAINT, NULL, (LPARAM)&infoBlock, [](PostMsgCbDataStruct data) -> void {
@@ -130,41 +156,57 @@ LRESULT GdiplusUI::LogicManager::MessageHandler(HWND hWnd, UINT uMsg, WPARAM wPa
 }
 
 
-bool GdiplusUI::LogicManager::WindowCaptionHittest(HWND hWnd, WPARAM wParam, LPARAM lParam, LRESULT& lResult) {
+bool GdiplusUI::LogicManager::CaptionMessageHandler(
+    HWND     hWnd,
+    UINT     uMsg,
+    WPARAM   wParam,
+    LPARAM   lParam,
+    LRESULT& lResult
+) {
+  LRESULT result{};
 
-  POINT screenPoint{GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
-  ScreenToClient(hWnd, &screenPoint);
+  Point screenPoint{};
+  screenPoint.X = GET_X_LPARAM(lParam) - m_posWindow.x;
+  screenPoint.Y = GET_Y_LPARAM(lParam) - m_posWindow.y;
+  // ScreenToClient(hWnd, &screenPoint);
 
-  const auto& btnSize = LogicManager::GetControlButtonSize();
-  auto        wndRect = m_renderManager->GetControlRoot()->GetRect();
+  const auto btnSize = LogicManager::GetControlButtonSize();
+  const auto wndWidth = m_sizeWindow.cx - 1;
 
-  // screenPoint.x = screenPoint.x - btnSize.Width * 3 + 1;
+  const int btnHeight    = btnSize.Height + 1;
+  const int minBtnLeft   = wndWidth - btnSize.Width * 3;
+  const int maxBtnLeft   = wndWidth - btnSize.Width * 2;
+  const int closeBtnLeft = wndWidth - btnSize.Width;
+  const int rightBound   = wndWidth;
 
-  if (screenPoint.y > btnSize.Height + 1) {
+  if (screenPoint.Y > btnHeight || screenPoint.Y <= 1) {
+    CaptionRenderProcess(NULL); // Reset status
     return false;
   }
 
+  if (screenPoint.X < minBtnLeft) {
+    CaptionRenderProcess(NULL); // Reset status
+    return false;
+  }
 
-  if (wndRect.Width - btnSize.Width * 3 - 1 <= screenPoint.x && screenPoint.x < wndRect.Width - btnSize.Width * 2 - 1) {
-    lResult = HTMINBUTTON;
-    WindowCaptionRender(WM_NCHITTEST, lResult);
+  if (minBtnLeft <= screenPoint.X && screenPoint.X < maxBtnLeft) {
+    result = HTMINBUTTON;
+  } else if (maxBtnLeft <= screenPoint.X && screenPoint.X < closeBtnLeft) {
+    result = HTMAXBUTTON;
+  } else if (closeBtnLeft <= screenPoint.X && screenPoint.X < rightBound) {
+    result = HTCLOSE;
+  }
+
+  if (result != NULL) {
+    CaptionRenderProcess(WM_NCHITTEST, result);
+    lResult = result;
     return true;
   }
 
-  if (wndRect.Width - btnSize.Width * 2 - 1 <= screenPoint.x && screenPoint.x < wndRect.Width - btnSize.Width - 1) {
-    lResult = HTMAXBUTTON;
-    WindowCaptionRender(WM_NCHITTEST, lResult);
-    return true;
-  }
-
-  if (wndRect.Width - btnSize.Width - 1 <= screenPoint.x && screenPoint.x < wndRect.Width - 1) {
-    lResult = HTCLOSE;
-    WindowCaptionRender(WM_NCHITTEST, lResult);
-    return true;
-  }
-
+  CaptionRenderProcess(NULL); // Reset status
   return false;
 }
+
 
 bool GdiplusUI::LogicManager::ExtendFrameMessageHandler(
     HWND     hWnd,
@@ -193,28 +235,6 @@ bool GdiplusUI::LogicManager::ExtendFrameMessageHandler(
     SetWindowPos(hWnd, NULL, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
   }
 
-
-  if (uMsg == WM_NCHITTEST) {
-
-    lResult = DefWindowProcW(hWnd, uMsg, wParam, lParam);
-
-    if (WindowCaptionHittest(hWnd, wParam, lParam, lResult)) {
-      return true;
-    }
-
-    if (lResult == HTCLIENT) {
-
-      POINT pt = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
-      ScreenToClient(hWnd, &pt);
-
-      if (pt.y < border_thickness.top) lResult = HTTOP;
-      else if (pt.y < margins.cyTopHeight) lResult = HTCAPTION;
-    }
-
-    return true;
-  }
-
-
   if (uMsg == WM_NCCALCSIZE) {
 
     if (lParam) {
@@ -229,12 +249,45 @@ bool GdiplusUI::LogicManager::ExtendFrameMessageHandler(
   }
 
 
-  // Skip the event of mouse from control button.
+  if (uMsg == WM_NCHITTEST) {
+
+    lResult = DefWindowProcW(hWnd, uMsg, wParam, lParam);
+
+    if (CaptionMessageHandler(hWnd, uMsg, wParam, lParam, lResult)) {
+      return true;
+    }
+
+    if (lResult == HTCLIENT) {
+      int mouseY = GET_Y_LPARAM(lParam) - m_posWindow.y;
+
+      if (mouseY < border_thickness.top) {
+        lResult = HTTOP;
+      } else if (mouseY < margins.cyTopHeight) {
+        lResult = HTCAPTION;
+      };
+    }
+
+    return true;
+  }
+
+  if (uMsg == WM_NCMOUSEMOVE || uMsg == WM_MOUSEMOVE) {
+    if (uMsg == WM_MOUSEMOVE) {
+      POINT pt{GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+      ClientToScreen(hWnd, &pt);
+      lParam = MAKELPARAM(pt.x, pt.y);
+    }
+
+    LRESULT noop{};
+    if (not CaptionMessageHandler(hWnd, uMsg, wParam, lParam, noop)) {
+      CaptionRenderProcess(NULL); // Reset status
+    }
+  }
+
   if (uMsg == WM_NCLBUTTONDOWN) {
 
     LRESULT result{};
-    if (WindowCaptionHittest(hWnd, wParam, lParam, result)) {
-      WindowCaptionRender(uMsg, result);
+    if (CaptionMessageHandler(hWnd, uMsg, wParam, lParam, result)) {
+      CaptionRenderProcess(uMsg, result);
       lResult = NULL;
       return true;
     }
@@ -243,7 +296,7 @@ bool GdiplusUI::LogicManager::ExtendFrameMessageHandler(
   if (uMsg == WM_NCLBUTTONUP) {
 
     LRESULT result{};
-    if (WindowCaptionHittest(hWnd, wParam, lParam, result)) {
+    if (CaptionMessageHandler(hWnd, uMsg, wParam, lParam, result)) {
 
       if (result == HTMINBUTTON) {
         ShowWindow(hWnd, SW_MINIMIZE);
@@ -261,7 +314,7 @@ bool GdiplusUI::LogicManager::ExtendFrameMessageHandler(
         DestroyWindow(hWnd);
       }
 
-      WindowCaptionRender(uMsg, result);
+      CaptionRenderProcess(NULL); // Reset status
       lResult = NULL;
       return true;
     }

@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ThemeConfig>
+	<General>
+		<DefaultFont font-size="16px">Segoe UI</DefaultFont>
+		<ControlFont font-size="7px">Segoe MDL2 Assets</ControlFont>
+		<DefaultFontColor>#FF000000</DefaultFontColor>
+		<ControlFontColor>#FF000000</ControlFontColor>
+	</General>
+	<Window>
+		<UseEffect>Acrylic</UseEffect>
+		<Frame>
+			<UseRounded>true</UseRounded>
+			<FrameColor>#FF86837E</FrameColor>
+			<BackgroundColor>#FFF3F3F3</BackgroundColor>
+		</Frame>
+		<Caption>
+			<ColorTable>
+				<NormalStatus>#00000000</NormalStatus>
+				<HoverStatus>#FF808080</HoverStatus>
+				<DownStatus>#FFA9A9A9</DownStatus>
+			</ColorTable>
+			<Symbol>
+				<Minimize>\uE921</Minimize>
+				<Maximize>\uE922</Maximize>
+				<Close>\uE8BB</Close>
+			</Symbol>
+		</Caption>
+	</Window>
+</ThemeConfig>
