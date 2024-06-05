@@ -29,6 +29,7 @@ LRESULT GdiplusUI::Components::Screen::__MessageHandler(UINT uMsg, WPARAM wParam
 
 bool GdiplusUI::Components::Screen::__PaintHandler(Graphics& graphics, void* pRenderInfo) {
   graphics.ResetClip();
+  graphics.SetSmoothingMode(SmoothingModeHighQuality);
   const Rect windowRect = this->GetRect();
 
   // Background
@@ -44,6 +45,13 @@ bool GdiplusUI::Components::Screen::__PaintHandler(Graphics& graphics, void* pRe
     graphics.DrawPath(&bgPen, &framePath);
     graphics.SetClip(&framePath);
   }
+
+  // Icon
+  int weight = GDIPLUS_UI_CAPTION_HEIGHT;
+  graphics.DrawImage(&ResourceManager::GetWindowIcon(), Rect(4, 4, weight - 8, weight - 8));
+
+  // Title
+  graphics.DrawString();
 
   // System control button status
   // 0: Minimize, 1: Maximize, 2: Close
@@ -76,6 +84,7 @@ bool GdiplusUI::Components::Screen::__PaintHandler(Graphics& graphics, void* pRe
   // Drawing buttons
   // Border width is 1 px, so here needs to plus or minus 1px.
   RectF buttonRect(windowRect.Width - buttonSize.Width * 3.f - 1.f, 1.f, buttonSize.Width * 1.f, buttonSize.Height * 1.f);
+  graphics.SetSmoothingMode(SmoothingModeHighSpeed);
 
   for (int i = 0; i < 3; ++i) {
     if (buttonStatus[i] == ButtonStatus::Normal) {
@@ -104,92 +113,3 @@ bool GdiplusUI::Components::Screen::__PaintHandler(Graphics& graphics, void* pRe
 
   return true;
 }
-
-
-/*
-bool GdiplusUI::Components::Screen::__PaintHandler(Graphics& graphics, void* pRenderInfo) {
-
-  const Rect windowRect = this->GetRect();
-
-
-  /// Background
-
-  SolidBrush applyBrush(Color(243, 243, 243));
-
-  if (GetFullscreenStatus()) {
-    graphics.FillRectangle(&applyBrush, windowRect);
-  } else {
-    GraphicsPath framePath{};
-    GdiplusUI::Utils::GdiplusExt::CreateBezierRoundedRect(framePath, windowRect, 32);
-
-    Pen bgPen(Color(134, 131, 126), 1.5f);
-
-    graphics.FillPath(&applyBrush, &framePath);
-    graphics.DrawPath(&bgPen, &framePath);
-
-    graphics.SetClip(&framePath);
-  }
-
-
-  /// System control button
-
-  unsigned char buttonStatus[3] = {0, 0, 0}; // 存状态，0 最小化 1 最大化 3 关闭 | 0 正常 1 Hover 2 按下
-  RIB*          infoBlock       = dynamic_cast<RIB*>((RIB*)pRenderInfo);
-  if (infoBlock != nullptr && infoBlock->reservedData != nullptr) {
-    auto statusData = *(int*)infoBlock->reservedData;
-    auto controlID     = LOWORD(statusData);
-    auto controlStatus = HIWORD(statusData);
-
-    if (controlID == HTMINBUTTON) {
-      buttonStatus[0] = controlStatus == WM_NCHITTEST ? 1 : 2;
-    }
-
-    if (controlID == HTMAXBUTTON) {
-      buttonStatus[1] = controlStatus == WM_NCHITTEST ? 1 : 2;
-    }
-
-    if (controlID == HTCLOSE) {
-      buttonStatus[2] = controlStatus == WM_NCHITTEST ? 1 : 2;
-    }
-  }
-
-  const Size buttonSize = LogicManager::GetControlButtonSize();
-  RectF      buttonRect(windowRect.Width - buttonSize.Width * 3 - 1, 1, buttonSize.Width, buttonSize.Height);
-
-  const auto&      buttonFont = ResourceManager::GetControlFont();
-  const SolidBrush bgDefaultColor(Color::Gray);
-  const SolidBrush bgDownColor(Color::DarkGray);
-  const SolidBrush symbolColor(Color::Black);
-
-  StringFormat centerFormat{};
-  centerFormat.SetAlignment(StringAlignmentCenter);
-  centerFormat.SetLineAlignment(StringAlignmentCenter);
-
-  graphics.SetSmoothingMode(SmoothingModeDefault);
-
-
-  if (buttonStatus[0] != 0) {
-    const auto& applyBrush = bool(buttonStatus[0] - 1) ? bgDefaultColor : bgDownColor;
-    graphics.FillRectangle(&applyBrush, buttonRect);
-  }
-  graphics.DrawString(L"\uE921", 1, &buttonFont, buttonRect, &centerFormat, &symbolColor);
-
-  buttonRect.X += buttonRect.Width;
-  if (buttonStatus[1] != 0) {
-    const auto& applyBrush = bool(buttonStatus[1] - 1) ? bgDefaultColor : bgDownColor;
-    graphics.FillRectangle(&applyBrush, buttonRect);
-  }
-  graphics.DrawString(L"\uE922", 1, &buttonFont, buttonRect, &centerFormat, &symbolColor);
-
-  buttonRect.X += buttonRect.Width;
-  if (buttonStatus[2] != 0) {
-    const auto& applyBrush = bool(buttonStatus[2] - 1) ? bgDefaultColor : bgDownColor;
-    graphics.FillRectangle(&applyBrush, buttonRect);
-  }
-  graphics.DrawString(L"\uE8BB", 1, &buttonFont, buttonRect, &centerFormat, &symbolColor);
-
-  graphics.SetSmoothingMode(SmoothingModeHighQuality);
-
-  return true;
-}
-*/

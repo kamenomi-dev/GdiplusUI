@@ -7,18 +7,14 @@ using GdiplusUI::Utils::Windows::WindowLayer::OsVersion;
 using GdiplusUI::Utils::Windows::WindowLayer::SetWindowCompositionAttribute;
 
 
-void GdiplusUI::Utils::Windows::WindowLayer::SetWindowCompositionAttributeFn(
-    SetWindowCompositionAttribute*& fnSet,
-    HMODULE&                        hUser32
-) {
+void GdiplusUI::Utils::Windows::WindowLayer::SetWindowCompositionAttributeFn(SetWindowCompositionAttribute*& fnSet, HMODULE& hUser32) {
 
   hUser32 = LoadLibraryA("User32.dll");
   if (hUser32 == NULL) {
     return;
   }
 
-  auto fnSetAttribute = (SetWindowCompositionAttribute*)
-      GetProcAddress(hUser32, "SetWindowCompositionAttribute");
+  auto fnSetAttribute = (SetWindowCompositionAttribute*)GetProcAddress(hUser32, "SetWindowCompositionAttribute");
 
   if (fnSetAttribute == NULL) {
     FreeLibrary(hUser32);
@@ -38,36 +34,25 @@ OsVersion GdiplusUI::Utils::Windows::WindowLayer::GetOsVersion() {
   auto      sharedDataBase = (BYTE*)0x7ffe0000;
   OsVersion retVersion{};
 
-  retVersion.NtMajorVersion =
-      *(ULONG*)(sharedDataBase + 0x26c); // major version offset
-  retVersion.NtMinorVersion =
-      *(ULONG*)(sharedDataBase + 0x270); // minor version offset
-  retVersion.NtBuildNumber =
-      *(ULONG*)(sharedDataBase + 0x260); // build number offset
+  retVersion.NtMajorVersion = *(ULONG*)(sharedDataBase + 0x26c); // major version offset
+  retVersion.NtMinorVersion = *(ULONG*)(sharedDataBase + 0x270); // minor version offset
+  retVersion.NtBuildNumber  = *(ULONG*)(sharedDataBase + 0x260); // build number offset
 
   return retVersion;
 }
 
 
 bool GdiplusUI::Utils::Windows::WindowLayer::SetDarkMode(HWND targetWindow, bool toggle) {
-  BOOL  bValue      = toggle;                         
-  
-  return DwmSetWindowAttribute(
-      targetWindow,
-      DWMWA_USE_IMMERSIVE_DARK_MODE,
-      &bValue,
-      sizeof(bValue)
-  ) == S_OK;
+  BOOL bValue = toggle;
+
+  return DwmSetWindowAttribute(targetWindow, DWMWA_USE_IMMERSIVE_DARK_MODE, &bValue, sizeof(bValue)) == S_OK;
 }
 
 
 /// <summary>
 /// Todo, 添加对 Mica 云母效果支持
 /// </summary>
-bool GdiplusUI::Utils::Windows::WindowLayer::SetBlurEffect(
-    HWND      targetWindow,
-    BlurTypes type
-) {
+bool GdiplusUI::Utils::Windows::WindowLayer::SetBlurEffect(HWND targetWindow, BlurTypes type) {
 
   const auto IsWindows11 = GetOsVersion().NtBuildNumber >= 22000;
 
@@ -121,8 +106,7 @@ bool GdiplusUI::Utils::Windows::WindowLayer::SetBlurEffect(
 
 
   Defines::ACCENT_POLICY accent{};
-  accent.AccentState =
-      (ACCENT_STATE)(type + 2); // ACCENT_ENABLE_BLURBEHIND - type.Aero = 2
+  accent.AccentState   = (ACCENT_STATE)(type + 2); // ACCENT_ENABLE_BLURBEHIND - type.Aero = 2
   accent.AccentFlags   = 0;
   accent.AnimationId   = 0;
   accent.GradientColor = 0;
@@ -143,3 +127,5 @@ bool GdiplusUI::Utils::Windows::WindowLayer::SetBlurEffect(
   FreeLibrary(hUser32);
   return ret;
 }
+
+HICON GdiplusUI::Utils::Windows::WindowLayer::GetWindowIcon(HWND targetWindow) { return (HICON)LoadIconW(NULL, IDI_APPLICATION); }

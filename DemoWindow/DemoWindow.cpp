@@ -79,7 +79,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
                          LPARAM lParam) {
   static GdiplusUI::Components::Screen win{};
-  static GdiplusUI::ResourceManager resourceManager{};
+  static GdiplusUI::ResourceManager resourceManager(hWnd, {});
   static GdiplusUI::RenderManager renderManager(&win, hWnd, &resourceManager);
   static GdiplusUI::LogicManager logicManager(&renderManager);
 

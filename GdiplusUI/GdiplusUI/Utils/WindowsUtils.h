@@ -68,6 +68,8 @@ OsVersion GetOsVersion();
 bool      SetDarkMode(HWND targetWindow, bool toggle);
 bool      SetBlurEffect(HWND targetWindow, BlurTypes type = None);
 
+HICON GetWindowIcon(HWND targetWindow);
+
 
 } // namespace WindowLayer
 } // namespace Windows

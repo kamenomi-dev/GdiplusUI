@@ -57,7 +57,7 @@ using namespace Defines;
 class ResourceManager : public INonCopy {
   public:
   ResourceManager();
-  ResourceManager(filesystem::path theme_file);
+  ResourceManager(HWND hWnd, filesystem::path theme_file);
   ~ResourceManager();
 
   static ResourceManager* GetInstance();
@@ -79,12 +79,17 @@ class ResourceManager : public INonCopy {
   static SolidBrush& GetCaptionButtonHoverBrush();
   static SolidBrush& GetCaptionButtonDownBrush();
 
+  static Bitmap& GetWindowIcon();
+
   private:
   static ResourceManager* m_instance;
 
   wstring m_loadedTheme;
 
   ThemeConf m_themeConfig;
+
+  HWND    m_hTargetWindow;
+  Bitmap* m_wndIcon;
 };
 
 } // namespace GdiplusUI

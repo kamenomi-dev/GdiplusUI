@@ -107,11 +107,14 @@
     <ClInclude Include="GdiplusUI\Includes\PugiXML\pugiconfig.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="GdiplusUI\UIConfig.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
     <None Include=".clang-tidy" />
     <None Include="ClassDiagram.cd" />
-    <None Include="GdiplusUI\Resource\Default.xml.theme" />
+    <None Include="Theme\Default.xml.theme" />
   </ItemGroup>
 </Project>

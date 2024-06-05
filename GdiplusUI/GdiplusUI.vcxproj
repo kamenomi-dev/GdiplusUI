@@ -140,6 +140,9 @@
       <NullTerminateStrings>true</NullTerminateStrings>
       <ShowProgress>true</ShowProgress>
     </ResourceCompile>
+    <PostBuildEvent>
+      <Command>xcopy $(ProjectDir)Theme $(OutDirFullPath)Theme /E /I /Y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -198,6 +201,7 @@
     <ClInclude Include="GdiplusUI\LogicManager.h" />
     <ClInclude Include="GdiplusUI\RenderManager.h" />
     <ClInclude Include="GdiplusUI\ResourceManager.h" />
+    <ClInclude Include="GdiplusUI\UIConfig.h" />
     <ClInclude Include="GdiplusUI\Utils\GdiplusUtils.h" />
     <ClInclude Include="GdiplusUI\Utils\RegeditUtils.h" />
     <ClInclude Include="GdiplusUI\Utils\WindowsUtils.h" />
@@ -206,7 +210,7 @@
     <None Include=".clang-format" />
     <None Include=".clang-tidy" />
     <None Include="ClassDiagram.cd" />
-    <None Include="GdiplusUI\Resource\Default.xml.theme" />
+    <None Include="Theme\Default.xml.theme" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

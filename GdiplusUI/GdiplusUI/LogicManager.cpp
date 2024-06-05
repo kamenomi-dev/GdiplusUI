@@ -4,6 +4,8 @@ using namespace GdiplusUI::Utils::Regedit;
 using namespace GdiplusUI::Utils::Windows;
 
 GdiplusUI::LogicManager::LogicManager(RenderManager* renderManager) {
+  LogicManager::m_instance = this;
+
   m_posWindow     = {0, 0};
   m_sizeWindow    = {0, 0};
   m_hMessageWnd   = renderManager->GetRenderWindow();
@@ -14,8 +16,32 @@ GdiplusUI::LogicManager::LogicManager(RenderManager* renderManager) {
 
 GdiplusUI::LogicManager::~LogicManager() {}
 
+void GdiplusUI::LogicManager::SetWindowTitle(wstring text, bool tryRerender) {
+  m_wndTitle = text;
+  if (tryRerender) {
+    InvalidateRect(m_hMessageWnd, NULL, false);
+  }
+}
+
+wstring GdiplusUI::LogicManager::GetWindowTitle() { return m_wndTitle; }
+
+void GdiplusUI::LogicManager::SetWindowIcon(Bitmap& icon, bool tryRerender){ 
+  HICON hIcon{};
+  icon.GetHICON(&hIcon);
+  ResourceManager::GetWindowIcon().FromHICON(hIcon);
+
+  if (tryRerender) {
+    InvalidateRect(m_hMessageWnd, NULL, false);
+  }
+}
+
+Bitmap& GdiplusUI::LogicManager::GetWindowIcon() { return ResourceManager::GetWindowIcon(); }
+
 // Todo
-Size GdiplusUI::LogicManager::GetControlButtonSize() { return Size(44, 30); }
+
+int GdiplusUI::LogicManager::GetCaptionHeight() { return GDIPLUS_UI_CAPTION_HEIGHT; }
+
+Size GdiplusUI::LogicManager::GetControlButtonSize() { return Size(GDIPLUS_UI_CONTROL_BUTTON_WDITH, GDIPLUS_UI_CONTROL_BUTTON_HEIGHT); }
 
 void GdiplusUI::LogicManager::UpdateThemeStatus() {
   constexpr auto registryPath = L"HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
@@ -63,6 +89,10 @@ LRESULT GdiplusUI::LogicManager::MessageHandler(HWND hWnd, UINT uMsg, WPARAM wPa
   static unsigned int themeColor = 0; // AARRGGBB
   static SwapChain*   swapChain;      // Need to check nullpointer.
 
+  LRESULT lResult{};
+  if (WindowMessageHandler(hWnd, uMsg, wParam, lParam, lResult)) {
+    return lResult;
+  }
 
   if (uMsg == WM_DWMCOLORIZATIONCOLORCHANGED) {
 
@@ -155,22 +185,23 @@ LRESULT GdiplusUI::LogicManager::MessageHandler(HWND hWnd, UINT uMsg, WPARAM wPa
   return DefWindowProcW(hWnd, uMsg, wParam, lParam);
 }
 
+bool GdiplusUI::LogicManager::WindowMessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult) {
+  if (uMsg == WM_SETTEXT) {
+    SetWindowTitle((wchar_t*)lParam, true);
+  }
+  return false; }
 
-bool GdiplusUI::LogicManager::CaptionMessageHandler(
-    HWND     hWnd,
-    UINT     uMsg,
-    WPARAM   wParam,
-    LPARAM   lParam,
-    LRESULT& lResult
-) {
-  LRESULT result{};
+
+bool GdiplusUI::LogicManager::CaptionMessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult) {
+  static bool needParse = false;
+  LRESULT     result{};
 
   Point screenPoint{};
   screenPoint.X = GET_X_LPARAM(lParam) - m_posWindow.x;
   screenPoint.Y = GET_Y_LPARAM(lParam) - m_posWindow.y;
   // ScreenToClient(hWnd, &screenPoint);
 
-  const auto btnSize = LogicManager::GetControlButtonSize();
+  const auto btnSize  = LogicManager::GetControlButtonSize();
   const auto wndWidth = m_sizeWindow.cx - 1;
 
   const int btnHeight    = btnSize.Height + 1;
@@ -179,13 +210,19 @@ bool GdiplusUI::LogicManager::CaptionMessageHandler(
   const int closeBtnLeft = wndWidth - btnSize.Width;
   const int rightBound   = wndWidth;
 
-  if (screenPoint.Y > btnHeight || screenPoint.Y <= 1) {
-    CaptionRenderProcess(NULL); // Reset status
+  if ((screenPoint.Y > btnHeight || screenPoint.Y <= 1)) {
+    if (needParse) {
+      needParse = false;
+      CaptionRenderProcess(NULL); // Reset status
+    }
     return false;
   }
 
-  if (screenPoint.X < minBtnLeft) {
-    CaptionRenderProcess(NULL); // Reset status
+  if (screenPoint.X < minBtnLeft and needParse) {
+    if (needParse) {
+      needParse = false;
+      CaptionRenderProcess(NULL); // Reset status
+    }
     return false;
   }
 
@@ -199,22 +236,20 @@ bool GdiplusUI::LogicManager::CaptionMessageHandler(
 
   if (result != NULL) {
     CaptionRenderProcess(WM_NCHITTEST, result);
-    lResult = result;
+    lResult   = result;
+    needParse = true;
     return true;
   }
 
-  CaptionRenderProcess(NULL); // Reset status
+  if (needParse) {
+    needParse = false;
+    CaptionRenderProcess(NULL); // Reset status
+  }
   return false;
 }
 
 
-bool GdiplusUI::LogicManager::ExtendFrameMessageHandler(
-    HWND     hWnd,
-    UINT     uMsg,
-    WPARAM   wParam,
-    LPARAM   lParam,
-    LRESULT& lResult
-) {
+bool GdiplusUI::LogicManager::ExtendFrameMessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult) {
   static MARGINS margins          = {0, 0, LogicManager::GetControlButtonSize().Height + 1, 0};
   static RECT    border_thickness = {0};
 
@@ -247,7 +282,6 @@ bool GdiplusUI::LogicManager::ExtendFrameMessageHandler(
       return true;
     }
   }
-
 
   if (uMsg == WM_NCHITTEST) {
 
@@ -334,24 +368,13 @@ void GdiplusUI::LogicManager::PostMessageEventToAll(UINT uMsg, WPARAM wParam, LP
   _PostMessageEventToAll(root, uMsg, wParam, lParam);
 }
 
-void GdiplusUI::LogicManager::PostMessageEventToAllEx(
-    UINT                uMsg,
-    WPARAM              wParam,
-    LPARAM              lParam,
-    PostMessageCallback proc
-) {
+void GdiplusUI::LogicManager::PostMessageEventToAllEx(UINT uMsg, WPARAM wParam, LPARAM lParam, PostMessageCallback proc) {
   const auto root = m_renderManager->GetControlRoot();
   root->__MessageHandler(uMsg, wParam, lParam);
   _PostMessageEventToAllEx(root, uMsg, wParam, lParam, proc);
 }
 
-void GdiplusUI::LogicManager::PostMessageEventToTarget(
-    Control* target,
-    UINT     uMsg,
-    WPARAM   wParam,
-    LPARAM   lParam,
-    bool     enableBubble
-) {
+void GdiplusUI::LogicManager::PostMessageEventToTarget(Control* target, UINT uMsg, WPARAM wParam, LPARAM lParam, bool enableBubble) {
   _PostMessageEventToTarget(target, uMsg, wParam, lParam, enableBubble);
 }
 
@@ -367,13 +390,7 @@ void GdiplusUI::LogicManager::_PostMessageEventToAll(Control* parent, UINT uMsg,
   parent->__MessageHandler(uMsg, wParam, lParam);
 }
 
-void GdiplusUI::LogicManager::_PostMessageEventToAllEx(
-    Control*            parent,
-    UINT                uMsg,
-    WPARAM              wParam,
-    LPARAM              lParam,
-    PostMessageCallback proc
-) {
+void GdiplusUI::LogicManager::_PostMessageEventToAllEx(Control* parent, UINT uMsg, WPARAM wParam, LPARAM lParam, PostMessageCallback proc) {
   PostMsgCbDataStruct dataStruct{};
   dataStruct.lastTarget = nullptr;
   dataStruct.uMsg       = uMsg;
@@ -398,13 +415,7 @@ void GdiplusUI::LogicManager::_PostMessageEventToAllEx(
 /// Todo. Let it supports the target controls which is targeted is saved in
 /// argument.
 /// </summary>
-void GdiplusUI::LogicManager::_PostMessageEventToTarget(
-    Control* target,
-    UINT     uMsg,
-    WPARAM   wParam,
-    LPARAM   lParam,
-    bool     enableBubble
-) {
+void GdiplusUI::LogicManager::_PostMessageEventToTarget(Control* target, UINT uMsg, WPARAM wParam, LPARAM lParam, bool enableBubble) {
   target->__MessageHandler(uMsg, wParam, lParam);
 
   if (not enableBubble) {

@@ -1,8 +1,6 @@
 
 // #pragma warning(disable : 4251)
 
-#include "../resource.h"
-
 #include <assert.h>
 #include <filesystem>
 #include <memory>
@@ -29,6 +27,8 @@ namespace filesystem = std::filesystem;
 
 
 #include "./Includes/PugiXML/pugixml.hpp"
+
+#include "./UIConfig.h"
 
 #include "./Interface.h"
 
